@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "digital_resources:item/empty_module",
+    "layer1": "digital_resources:item/resources/lead"
+  }
+}

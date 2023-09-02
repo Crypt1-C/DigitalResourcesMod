@@ -1,0 +1,26 @@
+{
+  "type": "forge:conditional",
+
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:not",
+          "value": {
+            "type": "forge:tag_empty",
+            "tag": "minecraft:coals"
+          }
+        }
+      ],
+      "recipe": {
+        "type": "digital_resources:resource_simulating",
+        "input": {
+          "item": "digital_resources:coal_module"
+        },
+        "output": {
+          "item": "minecraft:coal"
+        }
+      }
+    }
+  ]
+}

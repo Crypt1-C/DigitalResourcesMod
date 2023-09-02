@@ -1,0 +1,26 @@
+{
+  "type": "forge:conditional",
+
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:not",
+          "value": {
+            "type": "forge:tag_empty",
+            "tag": "forge:ingots/tin"
+          }
+        }
+      ],
+      "recipe": {
+        "type": "digital_resources:resource_simulating",
+        "input": {
+            "item": "digital_resources:tin_module"
+        },
+        "output": {
+          "tag": "forge:ingots/tin"
+        }
+      }
+    }
+  ]
+}

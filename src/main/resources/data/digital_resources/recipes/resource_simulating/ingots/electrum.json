@@ -1,0 +1,27 @@
+{
+  "type": "forge:conditional",
+
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:not",
+          "value": {
+            "type": "forge:tag_empty",
+            "tag": "forge:ingots/electrum"
+          }
+        }
+      ],
+      "recipe": {
+        "type": "digital_resources:resource_simulating",
+        "input":
+          {
+            "item": "digital_resources:electrum_module"
+          },
+        "output": {
+          "tag": "forge:ingots/electrum"
+        }
+      }
+    }
+  ]
+}
