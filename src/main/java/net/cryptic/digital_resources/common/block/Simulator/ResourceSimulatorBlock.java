@@ -10,6 +10,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -100,21 +101,6 @@ public class ResourceSimulatorBlock extends BaseEntityBlock {
             }
         }
         return InteractionResult.sidedSuccess(pLevel.isClientSide());
-    }
-
-    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRand) {
-        if (pState.getValue(WORKING)) {
-            double d0 = (double)pPos.getX() + 0.5D;
-            double d1 = (double)pPos.getY();
-            double d2 = (double)pPos.getZ() + 0.5D;
-
-            //pLevel.playLocalSound(d0, d1, d2, ModSounds.SIMULATOR_BLOCK_WORKING.get(), SoundSource.BLOCKS, 1.0F, 1.0F, false);
-
-            Direction direction = pState.getValue(FACING);
-            Direction.Axis direction$axis = direction.getAxis();
-
-            pLevel.addParticle(ParticleRegistry.BINARY_PARTICLE.get(), d0 + 1, d1 + 1, d2 + 1, 0.0D, 0.0D, 0.0D);
-        }
     }
 
     @Nullable

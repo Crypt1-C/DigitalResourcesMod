@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "CRAFTING_MISC",
+  "ingredients": [
+    {
+      "item": "digital_resources:raw_nulla_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "item": "digital_resources:raw_nulla"
+  }
+}

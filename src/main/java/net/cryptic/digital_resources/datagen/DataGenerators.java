@@ -13,10 +13,12 @@ public class DataGenerators {
     public static void gatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+        generator.addProvider(event.includeClient(), new BlockStateGenerator(generator, existingFileHelper));
         generator.addProvider(event.includeClient(), new ItemModelGenerator(generator, existingFileHelper));
         generator.addProvider(event.includeClient(), new LocalizationGenerator(generator, "en_us"));
         generator.addProvider(event.includeServer(), new LootTableGenerator(generator));
         generator.addProvider(event.includeServer(), new BlockTagGenerator(generator, existingFileHelper));
-        //generator.addProvider(event.includeServer(), new RecipeGenerator(generator));
+        generator.addProvider(event.includeServer(), new ItemTagGenerator(generator, existingFileHelper));
+        generator.addProvider(event.includeServer(), new RecipeGenerator(generator));
     }
 }

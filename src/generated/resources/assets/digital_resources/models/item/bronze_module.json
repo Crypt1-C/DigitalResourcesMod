@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "digital_resources:item/empty_module",
+    "layer0": "digital_resources:item/blank_module",
     "layer1": "digital_resources:item/resources/bronze"
   }
 }

@@ -5,7 +5,7 @@ import net.minecraft.util.StringRepresentable;
 import javax.annotation.Nonnull;
 
 public enum UpgradeTypes implements StringRepresentable {
-    EMPTY("empty"),
+    BLANK("blank"),
     SPEED("speed"),
     STACK("stack");
 

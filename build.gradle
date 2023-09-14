@@ -7,7 +7,7 @@ plugins {
 }
 
 version = '1.0'
-group = 'com.yourname.digital_resources' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group = 'net.cryptic.digital_resources' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'digital_resources'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -98,6 +98,10 @@ repositories {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
         url = "https://modmaven.dev"
+    }
+    maven {
+        // Shadows Placebo
+        url "https://maven.shadowsoffire.dev/releases"
     }
 }
 

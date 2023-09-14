@@ -1,37 +1,35 @@
 package net.cryptic.digital_resources.client.screen.ResourceSimulator;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.cryptic.digital_resources.Main;
-import net.cryptic.digital_resources.common.recipe.ResourceSimulatorRecipe;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiComponent;
+import net.cryptic.digital_resources.api.Classes.TickableText;
+import net.cryptic.digital_resources.api.Classes.Util;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.PaintingTextureManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 
-import java.awt.*;
-import java.util.Locale;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 
 public class SimulatorScreen extends AbstractContainerScreen<SimulatorMenu> {
 
-    int tick = 0;
-    public static final ResourceLocation TEXTURE = new ResourceLocation(Main.MOD_ID,"textures/gui/resource_simulator/gui.png");
+    public static final int WIDTH = 232;
+    public static final int HEIGHT = 230;
+    private static final ResourceLocation GUI = new ResourceLocation(Main.MOD_ID,"textures/gui/resource_simulator/gui.png");
+    private static final ResourceLocation PLAYER_INV = new ResourceLocation(Main.MOD_ID,"textures/gui/default_gui.png");
+    private List<TickableText> body = new ArrayList<>(7);
+
+
     public SimulatorScreen(SimulatorMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
         super(pMenu, pPlayerInventory, pTitle);
+        this.imageWidth = WIDTH;
+        this.imageHeight = HEIGHT;
     }
 
     @Override
@@ -40,62 +38,77 @@ public class SimulatorScreen extends AbstractContainerScreen<SimulatorMenu> {
     }
 
     @Override
-    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0f,1.0f,1.0f,1.0f);
-        RenderSystem.setShaderTexture(0,TEXTURE);
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
+    protected void renderLabels(PoseStack pPoseStack, int pMouseX, int pMouseY) {
+        int progress = this.menu.getProgress();
+        int maxProgress = this.menu.getMaxProgress();
 
-        this.blit(pPoseStack,x,y,0,0,imageWidth,imageHeight);
-        this.blit(pPoseStack,x-28,y,177,0,29,73);
-        renderWidgets(pPoseStack, x, y);
-    }
+        if (menu.isCrafting()) {
+            int percentage = Math.min(99, Mth.ceil(((float) progress / maxProgress) * 100F));
+            this.font.drawShadow(pPoseStack, percentage + "%", 184, 123, 0xAA00FF);
 
-    private void renderWidgets(PoseStack pPoseStack, int x, int y) {
-        if(menu.isCrafting()) {
-            tick++;
-            blit(pPoseStack, x + 153, y + 71 - menu.getScaledProgress(), 240, 62 - menu.getScaledProgress(), 16, menu.getScaledProgress());
-            renderText(pPoseStack,x+33,y+12,Component.translatable("text.resource_simulator.working").getString(),"#71df2d");
+            int xOff = 48;
+            int yOff = 21;
+            String msg = Component.literal("> ").getString();
+            this.font.draw(pPoseStack, msg, xOff, yOff, 0xFFFFFF);
 
-            renderText(pPoseStack,x+32,y+36,"x"+menu.blockEntity.getCount(),"#ffffff");
+            xOff += this.font.width(msg);
+            msg = menu.getResource() != null ? Base64.getEncoder().encodeToString(menu.getResource().getBytes()) : "";
+            this.font.draw(pPoseStack, msg, xOff, yOff, 0xff005d);
 
+            xOff += this.font.width(msg);
+            this.font.draw(pPoseStack, " x" + this.menu.getCount(), xOff, yOff, 0xbb00ff);
+        }
 
-            if (tick % 20*5 == 0) {
-                renderText(pPoseStack, x + new Random().nextInt(34,140), y + new Random().nextInt(8,69),".","#71df2d");
-                renderText(pPoseStack, x + new Random().nextInt(34,140), y + new Random().nextInt(8,69),"'","#71df2d");
-                renderText(pPoseStack, x + new Random().nextInt(34,140), y + new Random().nextInt(8,69),"*","#71df2d");
-                renderText(pPoseStack, x + new Random().nextInt(34,140), y + new Random().nextInt(8,69),"°","#71df2d");
-            }
-
-            if (menu.getProgress() >= 10) {
-                renderText(pPoseStack,x+79,y+60, menu.getProgress()+"%","#ffffff");
+        int left = 29;
+        int top = 51;
+        int spacing = this.font.lineHeight + 3;
+        int idx = 0;
+        for (TickableText t : this.body) {
+            t.render(this.font, pPoseStack, left, top + spacing * idx);
+            if (t.causesNewLine()) {
+                idx++;
+                left = 29;
             } else {
-                renderText(pPoseStack,x+81,y+60, menu.getProgress()+"%","#ffffff");
+                left += t.getWidth(this.font);
             }
-            if (menu.getResource() != null) {
-                renderItem(pPoseStack,x+66,y+32, menu.getResource());
-                renderText(pPoseStack,x+86,y+36, menu.getResource(),"#ffffff");
-            }
-        } else {
-            tick = 0;
-            renderText(pPoseStack,x+32,y+12,Component.translatable("text.resource_simulator.idle").getString(),"#7f0ff7");
-            //renderText(pPoseStack,x+32,y+22,"To Begin Simulation _","#7f0ff7");
         }
     }
 
-    private void renderText(PoseStack pPoseStack, int pX ,int pY,String text,String ColorHex) {
-        Minecraft.getInstance().font.draw(pPoseStack,text,pX,pY, TextColor.parseColor(ColorHex).getValue());
+    @Override
+    protected void renderBg(PoseStack pPoseStack, float pPartialTick, int pMouseX, int pMouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0f,1.0f,1.0f,1.0f);
+        RenderSystem.setShaderTexture(0,GUI);
+
+        int x = this.getGuiLeft();
+        int y = this.getGuiTop();
+
+        this.blit(pPoseStack, x + 8, y, 0, 0, 216, 141, 256, 256);
+        this.blit(pPoseStack, x - 14, y, 0, 141, 18, 18, 256, 256);
+        this.blit(pPoseStack, x - 14, y + 25, 0, 159, 18, 18, 256, 256);
+
+        blit(pPoseStack, x + 14, y + 135 - menu.getScaledProgress(), 18, 226 - menu.getScaledProgress(), 7, menu.getScaledProgress());
+
+        RenderSystem.setShaderTexture(0, PLAYER_INV);
+        this.blit(pPoseStack, x + 28, y + 145, 0, 0, 176, 90, 256, 256);
     }
 
-    private void renderItem(PoseStack pPoseStack, int pX, int pY, String resource) {
-        ResourceLocation texture = new ResourceLocation(Main.MOD_ID,"textures/item/resources/"+resource.toLowerCase()+".png");
+    @Override
+    protected void renderTooltip(PoseStack pPoseStack, int pX, int pY) {
+        int progress = this.menu.getProgress();
+        int maxProgress = this.menu.getMaxProgress();
+        int rTime = Math.min(99, Mth.ceil(((float) progress / maxProgress) * 100f));
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.setShaderTexture(0, texture);
+        if (this.isHovering(14,135-87,7,87, pX, pY)) {
+            if (this.menu.isCrafting()) {
+                this.renderTooltip(pPoseStack,Component.literal(rTime + "%").withStyle(ChatFormatting.DARK_PURPLE), pX, pY);
+            } else {
+                this.renderTooltip(pPoseStack,Component.literal("*"), pX, pY);
+            }
+        } else {
+            super.renderTooltip(pPoseStack, pX, pY);
+        }
 
-        blit(pPoseStack, pX, pY, 0,0, 0, 16, 16,16,16);
     }
 
     @Override

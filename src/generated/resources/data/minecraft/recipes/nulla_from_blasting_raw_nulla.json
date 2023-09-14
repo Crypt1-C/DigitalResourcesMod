@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:blasting",
+  "cookingtime": 150,
+  "experience": 2.4,
+  "group": "BLAST_FURNACE_BLOCKS",
+  "ingredient": {
+    "item": "digital_resources:raw_nulla"
+  },
+  "result": "digital_resources:nulla"
+}

@@ -35,17 +35,40 @@ public class LocalizationGenerator extends LanguageProvider {
                 .map(ForgeRegistries.ITEMS::getKey)
                 .filter(Objects::nonNull)
                 .map(ResourceLocation::getPath)
-                .forEach(path -> add(String.format("item.digital_resources.%s", path),WordUtils.capitalize(path.replace("_"," "))));
+                .forEach(path -> add(String.format("item.digital_resources.%s", path), WordUtils.capitalize(path.replace("_"," "))));
+
+        ItemRegistry.DATA_SHARDS_REGISTRY.getEntries().stream()
+                .map(RegistryObject::get)
+                .map(ForgeRegistries.ITEMS::getKey)
+                .filter(Objects::nonNull)
+                .map(ResourceLocation::getPath)
+                .forEach(path -> add(String.format("item.digital_resources.%s", path), WordUtils.capitalize(path.replace("_"," "))));
 
         add("itemGroup.module_tab", "Digital Resources Modules");
         add("itemGroup.upgrade_tab", "Digital Resources Upgrades");
         add("itemGroup.misc_tab", "Digital Resources Misc");
+        add("itemGroup.data_shards_tab", "Digital Resources Data Shards");
+
+        add("item.tooltip.shift", "Press [Shift] For More Info");
+
+        add("item.data_shard.tooltip", "Contains Resource Data For: ");
+        add("item.module.tooltip", "Contains Resource Data For: ");
+
+        add("item.upgrade.speed.tooltip", "Upgrades Machine Speed By x2");
+        add("item.upgrade.stack.tooltip", "Upgrades Machine Output By x4");
 
         add("digital_resources.jei.resource_simulator","Resource Simulating");
         add("digital_resources.jei.encoder","Resource Encoding");
 
-        add("text.resource_simulator.working","Generating Resource:");
-        add("text.resource_simulator.idle","root@DR:~$ Idle");
+        add("resource_simulator.gui.working","Simulating: ");
+
+        add("resource_simulator.run.0", "~$ Launching runtime ");
+        add("resource_simulator.run.1", "~$ Iteration started");
+        add("resource_simulator.run.2", "~$ Loading Resource from Module");
+        add("resource_simulator.run.3", "~$ Assessing Resource Value");
+        add("resource_simulator.run.4", "~$ Discovering Composition");
+        add("resource_simulator.run.5", "~$ Materializing Data");
+        add("resource_simulator.run.6", "~$ Processing results...");
 
     }
 }

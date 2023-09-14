@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "CRAFTING_BUILDING_BLOCKS",
+  "key": {
+    "#": {
+      "item": "digital_resources:raw_nulla"
+    }
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "result": {
+    "item": "digital_resources:raw_nulla_block"
+  }
+}

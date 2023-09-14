@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 250,
+  "experience": 0.8,
+  "group": "FURNACE_BLOCKS",
+  "ingredient": {
+    "item": "digital_resources:nulla_ore"
+  },
+  "result": "digital_resources:nulla"
+}

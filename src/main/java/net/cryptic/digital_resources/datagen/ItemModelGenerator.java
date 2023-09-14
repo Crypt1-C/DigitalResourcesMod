@@ -21,37 +21,45 @@ public class ItemModelGenerator extends ItemModelProvider {
     @Override
     protected void registerModels() {
 
-        normalItem(ItemRegistry.getModuleByResource(Resources.EMPTY).get());
-        normalItem(ItemRegistry.getUpgradeByType(UpgradeTypes.EMPTY).get());
-
         ItemRegistry.getAllBlockItems().forEach(this::blockItem);
 
+        normalItem(ItemRegistry.getModuleByResource(Resources.BLANK));
+        normalItem(ItemRegistry.getDataShardByResource(Resources.BLANK));
+        normalItem(ItemRegistry.getUpgradeByType(UpgradeTypes.BLANK));
+        normalItem(ItemRegistry.NULLA);
+        normalItem(ItemRegistry.RAW_NULLA);
+
         for (Resources resource: Resources.values()) {
-            if (resource != Resources.EMPTY) {
-                moduleItem(ItemRegistry.getModuleByResource(resource).get());
+            if (resource != Resources.BLANK) {
+                moduleItem(ItemRegistry.getModuleByResource(resource));
+                dataShardItem(ItemRegistry.getDataShardByResource(resource));
             }
         }
 
         for (UpgradeTypes type: UpgradeTypes.values()) {
-            if (type != UpgradeTypes.EMPTY) {
-                upgradeItem(ItemRegistry.getUpgradeByType(type).get());
+            if (type != UpgradeTypes.BLANK) {
+                upgradeItem(ItemRegistry.getUpgradeByType(type));
             }
         }
     }
 
     private ItemModelBuilder moduleItem(RegistryObject<Item> pItem) {
         String item_name = pItem.getId().getPath().replace("_module","");
-        System.out.println(item_name);
         return withExistingParent(pItem.getId().getPath(), mcLoc("item/generated"))
-                .texture("layer0", modLoc("item/empty_module"))
+                .texture("layer0", modLoc("item/blank_module"))
                 .texture("layer1",modLoc(String.format("item/resources/%s",item_name)));
+    }
+
+    private ItemModelBuilder dataShardItem(RegistryObject<Item> pItem) {
+        String item_name = pItem.getId().getPath().replace("_data_shard","");
+        return withExistingParent(pItem.getId().getPath(), mcLoc("item/generated"))
+                .texture("layer0", modLoc("item/blank_data_shard"));
     }
 
     private ItemModelBuilder upgradeItem(RegistryObject<Item> pItem) {
         String item_name = pItem.getId().getPath().replace("_upgrade","");
-        System.out.println(item_name);
         return withExistingParent(pItem.getId().getPath(), mcLoc("item/generated"))
-                .texture("layer0", modLoc("item/empty_upgrade"))
+                .texture("layer0", modLoc("item/blank_upgrade"))
                 .texture("layer1",modLoc(String.format("item/upgrades/%s",item_name)));
     }
 
@@ -62,7 +70,7 @@ public class ItemModelGenerator extends ItemModelProvider {
 
     private ItemModelBuilder blockItem(Item pItem) {
         String name = pItem.toString();
-        return withExistingParent(name, modLoc("block/" + name + "/" + name));
+        return name.contains("resource") ? withExistingParent(name, modLoc("block/" + name + "/" + name)) : withExistingParent(name, modLoc("block/" + name)) ;
     }
 
     private ItemModelBuilder handheldItem(RegistryObject<Item> pItem) {

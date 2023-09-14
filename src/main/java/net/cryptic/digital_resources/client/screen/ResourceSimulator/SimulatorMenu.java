@@ -1,5 +1,6 @@
 package net.cryptic.digital_resources.client.screen.ResourceSimulator;
 
+import net.cryptic.digital_resources.client.screen.slot.InputSlot;
 import net.cryptic.digital_resources.client.screen.slot.ModuleInputSlot;
 import net.cryptic.digital_resources.client.screen.slot.OutputSlot;
 import net.cryptic.digital_resources.client.screen.slot.UpgradeSlot;
@@ -14,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.SlotItemHandler;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class SimulatorMenu extends AbstractContainerMenu {
@@ -23,13 +25,13 @@ public class SimulatorMenu extends AbstractContainerMenu {
     private ContainerData data;
 
     public SimulatorMenu(int pId, Inventory pInventory, FriendlyByteBuf pBuf) {
-        this(pId,pInventory,pInventory.player.level.getBlockEntity(pBuf.readBlockPos()), new SimpleContainerData(2));
+        this(pId,pInventory,pInventory.player.level.getBlockEntity(pBuf.readBlockPos()), new SimpleContainerData(3));
     }
 
     @SuppressWarnings("removal")
     public SimulatorMenu(int pId, Inventory pInventory, BlockEntity pEntity, ContainerData pData) {
         super(MenuTypeRegistry.RESOURCE_SIMULATOR_MENU.get(), pId);
-        checkContainerSize(pInventory,4);
+        checkContainerSize(pInventory,5);
         blockEntity = (ResourceSimulatorBlockEntity) pEntity;
         this.level = pInventory.player.level;
         this.data = pData;
@@ -38,16 +40,18 @@ public class SimulatorMenu extends AbstractContainerMenu {
         addPlayerHotbar(pInventory);
 
         this.blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(handler -> {
-            this.addSlot(new ModuleInputSlot(handler, 0, 8, 7));    //input slot
-            this.addSlot(new UpgradeSlot(handler, 1, -22, 6));    // upgrade slot 1
-            this.addSlot(new UpgradeSlot(handler, 2, -22, 26)); // upgrade slot 2
-            this.addSlot(new OutputSlot(handler, 3, 8, 57));   //output slot
-
+            this.addSlot(new ModuleInputSlot(handler, 0, 24, 17));    //module slot
+            this.addSlot(new UpgradeSlot(handler, 1, -13, 1));    // upgrade slot 1
+            this.addSlot(new UpgradeSlot(handler, 2, -13, 26)); // upgrade slot 2
+            this.addSlot(new OutputSlot(handler, 3, 196, 17));   //output slot
+            this.addSlot(new InputSlot(handler, 4, 176, 17));   //input slot
         });
 
         addDataSlots(data);
 
     }
+
+
 
     public boolean isCrafting() {
         return data.get(0) > 0;
@@ -61,17 +65,21 @@ public class SimulatorMenu extends AbstractContainerMenu {
     }
 
     public int getProgress() {
-        int progress = this.data.get(0);
-        int maxProgress = this.data.get(1); // Max Progress
-        float percentage = (((float) progress / maxProgress) * 100);
+        return this.data.get(0);
+    }
 
-        return maxProgress != 0 && progress != 0 ? (int) percentage : 0;
+    public int getMaxProgress() {
+        return this.data.get(1);
+    }
+
+    public int getCount() {
+        return this.data.get(2);
     }
 
     public int getScaledProgress() {
         int progress = this.data.get(0);
         int maxProgress = this.data.get(1);  // Max Progress
-        int progressArrowSize = 63; // This is the height in pixels of your arrow
+        int progressArrowSize = 87; // This is the height in pixels of your arrow
 
         return maxProgress != 0 && progress != 0 ? ((progress * progressArrowSize) / maxProgress) : 0;
     }
@@ -92,7 +100,7 @@ public class SimulatorMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-    private static final int TE_INVENTORY_SLOT_COUNT = 4;  // must be the number of slots you have!
+    private static final int TE_INVENTORY_SLOT_COUNT = 5;  // must be the number of slots you have!
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
@@ -104,8 +112,7 @@ public class SimulatorMenu extends AbstractContainerMenu {
         // Check if the slot clicked is one of the vanilla container slots
         if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
-            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
-                    + TE_INVENTORY_SLOT_COUNT, false)) {
+            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;  // EMPTY_ITEM
             }
         } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
@@ -135,14 +142,15 @@ public class SimulatorMenu extends AbstractContainerMenu {
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 86 + i * 18));
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 36 + l * 18, 153 + i * 18));
             }
         }
     }
 
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 144));
+            this.addSlot(new Slot(playerInventory, i, 36 + i * 18, 211));
         }
     }
+
 }

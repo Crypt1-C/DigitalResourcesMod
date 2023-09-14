@@ -1,3 +1,6 @@
-// 1.19.2	2023-08-22T00:11:57.5920853	LootTables
+// 1.19.2	2023-09-07T09:40:55.3195382	LootTables
+f62494c46b55d80a7259f86cdc75e772b945cbe9 data/digital_resources/loot_tables/blocks/nulla_block.json
+39295af15a8cafefa15fe6324795ea054773e7db data/digital_resources/loot_tables/blocks/nulla_ore.json
+606f4fd2cb8ea2e31cdf424fb478d2c130c0770e data/digital_resources/loot_tables/blocks/raw_nulla_block.json
 9343f5809ce358599e2370127337ca7b3fddda98 data/digital_resources/loot_tables/blocks/resource_encoder.json
 3f7bce19feb369c453a1f0d1a3bacdf58f7a33e8 data/digital_resources/loot_tables/blocks/resource_simulator.json

@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -34,7 +36,7 @@ import java.util.Optional;
 
 public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuProvider {
 
-    private final ItemStackHandler itemHandler = new ItemStackHandler(4) {
+    private final ItemStackHandler itemHandler = new ItemStackHandler(5) {
         @Override
         protected void onContentsChanged(int slot) {
             super.onContentsChanged(slot);
@@ -45,9 +47,11 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
 
     protected final ContainerData data;
     private int progress = 0;
-    private int maxProgress = 20*60*5; // 20 * seconds
+    private int maxProgress = 20 * 60 * 5; // 5 minutes
     private int speed = 1;
     private int count = 1;
+    private int ticks = 1;
+
 
     public ResourceSimulatorBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(BlockEntityRegistry.RESOURCE_SIMULATOR.get(), pPos, pBlockState);
@@ -57,6 +61,7 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
                 return switch (pIndex) {
                     case 0 -> ResourceSimulatorBlockEntity.this.progress;
                     case 1 -> ResourceSimulatorBlockEntity.this.maxProgress;
+                    case 2 -> ResourceSimulatorBlockEntity.this.count;
                     default -> 0;
                 };
             }
@@ -66,12 +71,13 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
                 switch (pIndex) {
                     case 0 -> ResourceSimulatorBlockEntity.this.progress = pValue;
                     case 1 -> ResourceSimulatorBlockEntity.this.maxProgress = pValue;
+                    case 2 -> ResourceSimulatorBlockEntity.this.count = pValue;
                 }
             }
 
             @Override
             public int getCount() {
-                return 2;
+                return 3;
             }
         };
     }
@@ -84,7 +90,7 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return new SimulatorMenu(pContainerId,pPlayerInventory,this,this.data);
+        return new SimulatorMenu(pContainerId, pPlayerInventory,this,this.data);
     }
 
     @SuppressWarnings("removal")
@@ -110,7 +116,7 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
 
     @Override
     protected void saveAdditional(CompoundTag pTag) {
-        pTag.put("inventory",itemHandler.serializeNBT());
+        pTag.put("resource_simulator.inventory",itemHandler.serializeNBT());
         pTag.putInt("resource_simulator.progress",progress);
         super.saveAdditional(pTag);
     }
@@ -118,7 +124,7 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
     @Override
     public void load(CompoundTag pTag) {
         super.load(pTag);
-        itemHandler.deserializeNBT(pTag.getCompound("inventory"));
+        itemHandler.deserializeNBT(pTag.getCompound("resource_simulator.inventory"));
         progress = pTag.getInt("resource_simulator.progress");
     }
 
@@ -132,18 +138,23 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
     }
 
     public static <E extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, ResourceSimulatorBlockEntity pEntity) {
-        if(level.isClientSide()) {
-            return;
-        }
 
         if (hasRecipe(pEntity)) {
             level.setBlock(blockPos,blockState.setValue(ResourceSimulatorBlock.WORKING,true),3);
             pEntity.progress += pEntity.speed;
+            pEntity.ticks++;
             setChanged(level, blockPos, blockState);
 
             if (pEntity.progress >= pEntity.maxProgress) {
                 craftItem(pEntity);
             }
+
+            if (pEntity.ticks % (20*7) == 0) {
+                System.out.println(pEntity.ticks);
+                level.playLocalSound(blockPos.getX(),blockPos.getY(),blockPos.getZ(), SoundEvents.BEACON_AMBIENT, SoundSource.BLOCKS,1.0f,0.5f,false);
+                pEntity.ticks = 0;
+            }
+
         } else {
             level.setBlock(blockPos,blockState.setValue(ResourceSimulatorBlock.WORKING,false),3);
             pEntity.resetProgress();
@@ -160,23 +171,23 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
 
         Optional<ResourceSimulatorRecipe> recipe = level.getRecipeManager().getRecipeFor(ResourceSimulatorRecipe.Type.INSTANCE,inventory,level);
 
-        if (pEntity.itemHandler.getStackInSlot(1).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.SPEED).get().get()) {
+        if (pEntity.itemHandler.getStackInSlot(1).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.SPEED).get()) {
             pEntity.speed = pEntity.itemHandler.getStackInSlot(1).getCount() * 4;
-        } else if (pEntity.itemHandler.getStackInSlot(2).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.SPEED).get().get()) {
+        } else if (pEntity.itemHandler.getStackInSlot(2).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.SPEED).get()) {
             pEntity.speed = pEntity.itemHandler.getStackInSlot(2).getCount() * 4;
         } else {
             pEntity.speed = 1;
         }
 
-        if ((pEntity.itemHandler.getStackInSlot(1).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.STACK).get().get())) {
+        if ((pEntity.itemHandler.getStackInSlot(1).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.STACK).get())) {
             pEntity.count = pEntity.itemHandler.getStackInSlot(1).getCount() * 4;
-        } else if ((pEntity.itemHandler.getStackInSlot(2).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.STACK).get().get())) {
+        } else if ((pEntity.itemHandler.getStackInSlot(2).getItem() == ItemRegistry.getUpgradeByType(UpgradeTypes.STACK).get())) {
             pEntity.count = pEntity.itemHandler.getStackInSlot(2).getCount() * 4;
         } else {
             pEntity.count = 1;
         }
 
-        return recipe.isPresent() && canInsertAmmountIntoOutputSlot(inventory) && canInsertIntoOutputSlot(inventory, recipe.get().getResultItem());
+        return recipe.isPresent() && canInsertAmmountIntoOutputSlot(inventory) && canInsertIntoOutputSlot(inventory, recipe.get().getResultItem()) && hasNullMaterial(pEntity);
     }
 
     private static boolean canInsertIntoOutputSlot(SimpleContainer inventory, ItemStack itemStack) {
@@ -185,6 +196,10 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
 
     private static boolean canInsertAmmountIntoOutputSlot(SimpleContainer inventory) {
         return inventory.getItem(3).getMaxStackSize() > inventory.getItem(3).getCount();
+    }
+
+    private static boolean hasNullMaterial(ResourceSimulatorBlockEntity pEntity) {
+        return pEntity.itemHandler.getStackInSlot(4).is(ItemRegistry.NULLA.get());
     }
 
     private static void craftItem(ResourceSimulatorBlockEntity pEntity) {
@@ -196,6 +211,7 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
         Optional<ResourceSimulatorRecipe> recipe = level.getRecipeManager().getRecipeFor(ResourceSimulatorRecipe.Type.INSTANCE,inventory,level);
 
         if (hasRecipe(pEntity)) {
+            pEntity.itemHandler.extractItem(4, pEntity.count, false);
             pEntity.itemHandler.setStackInSlot(3, new ItemStack(recipe.get().getResultItem().getItem(), pEntity.itemHandler.getStackInSlot(3).getCount() + pEntity.count));
             pEntity.resetProgress();
         }
@@ -207,10 +223,6 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
         } else return null;
     }
 
-    public int getCount() {
-        return this.count;
-    }
-
     public ItemStack getRenderedStack() {
         if (!itemHandler.getStackInSlot(0).isEmpty()) {
             ItemStack stack = itemHandler.getStackInSlot(0);
@@ -220,28 +232,9 @@ public class ResourceSimulatorBlockEntity extends BlockEntity implements MenuPro
         }
     }
 
-    public ItemStack getRenderedUpgrade1() {
-        ItemStack stack;
 
-        if (itemHandler.getStackInSlot(1).isEmpty()) {
-            stack = new ItemStack(Items.AIR);
-        } else {
-            stack = itemHandler.getStackInSlot(1);
-        }
-
-        return stack;
-    }
-
-    public ItemStack getRenderedUpgrade2() {
-        ItemStack stack;
-
-        if (itemHandler.getStackInSlot(2).isEmpty()) {
-            stack = new ItemStack(Items.AIR);
-        } else {
-            stack = itemHandler.getStackInSlot(2);
-        }
-
-        return stack;
+    public int getProgress() {
+        return this.progress;
     }
 
     private void resetProgress() {

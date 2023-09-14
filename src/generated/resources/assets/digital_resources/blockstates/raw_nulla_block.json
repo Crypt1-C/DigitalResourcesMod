@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "digital_resources:block/raw_nulla_block"
+    }
+  }
+}

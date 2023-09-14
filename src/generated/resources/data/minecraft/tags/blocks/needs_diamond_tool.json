@@ -1,6 +1,9 @@
 {
   "values": [
     "digital_resources:resource_simulator",
-    "digital_resources:resource_encoder"
+    "digital_resources:resource_encoder",
+    "digital_resources:nulla_ore",
+    "digital_resources:raw_nulla_block",
+    "digital_resources:nulla_block"
   ]
 }

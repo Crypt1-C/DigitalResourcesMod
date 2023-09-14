@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "digital_resources:item/empty_upgrade"
+    "layer0": "digital_resources:item/blank_upgrade"
   }
 }

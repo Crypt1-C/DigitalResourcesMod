@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "digital_resources:item/empty_module"
+    "layer0": "digital_resources:item/nulla"
   }
 }
